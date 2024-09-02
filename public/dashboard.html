@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <title>Mithr - Dashboard</title>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"
+    />
+    <link
+      rel="icon"
+      href="/public/assets/images/mithr-logo-favicon.png"
+      type="image/png"
+    />
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"
+    ></script>
+    <!-- jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- jsPDF autoTable plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+  </head>
+  <body>
+    <div class="mobile-msg">
+      <p>Please use Mithr on tablet or bigger screens for the best experience.</p>
+    </div>
+    <div id="loading-screen" class="loading-screen">
+      <div class="text-container"></div>
+      <div class="gradient-bg">
+        <div class="gradients-container">
+          <div class="g1"></div>
+          <div class="g2"></div>
+          <div class="g3"></div>
+          <div class="g4"></div>
+          <div class="g5"></div>
+        </div>
+      </div>
+    </div>
+    <div id="dashboard-content" style="display: none">
+      <!-- Sidebar Menu -->
+      <aside class="sidebar">
+        <div class="sidebar-top">
+          <div class="sidebar-logo">
+            <img
+              src="assets/images/mithr-logo-full-light.png"
+              alt="Mithr Logo"
+            />
+          </div>
+          <nav class="sidebar-menu">
+            <ul>
+              <li class="active">
+                <a href="" class="a-active">Dashboard</a>
+              </li>
+              <li class="sidebar-item">
+                <a href="" class="a-off">Analytics</a>
+              </li>
+              <li class="sidebar-item">
+                <a href="/public/feedback.html" class="a-off">Suggestions</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <div class="sidebar-bot">
+          <div class="sidebar-menu">
+            <ul>
+              <li id="invite-btn" class="sidebar-item">
+                <a href="" class="a-off">Invite a Friend</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-dashboard">
+        <!-- Header Section -->
+        <header class="dashboard-header">
+          <div class="header-content-wrapper">
+            <h1 id="dashboard-title" class="header-heading">
+              <!-- This title will be dynamic -->
+            </h1>
+            <div class="dashboard-actions">
+              <button class="cta-btn-big" id="add-experiment">
+                + Add Campaign
+              </button>
+            </div>
+          </div>
+          <div class="dashboard-horizontal-line"></div>
+        </header>
+
+        <!-- Filters and Report Section -->
+        <section class="filters-and-report">
+          <div class="filters">
+            <!-- Date Range Filter -->
+            <div class="filter-group">
+              <input
+                type="text"
+                id="date-range-filter"
+                class="date-range-input filter-input"
+                placeholder="Select Date Range"
+              />
+            </div>
+
+            <!-- Category Filter -->
+            <div class="filter-group">
+              <select id="category-filter" class="filter-input main-filter">
+                <option value="">Categories</option>
+                <!-- Dynamically populate options based on categories -->
+              </select>
+            </div>
+
+            <!-- KPI Filter -->
+            <div class="filter-group">
+              <select id="kpi-filter" class="filter-input main-filter">
+                <option value="">KPIs</option>
+                <!-- Dynamically populate options based on KPIs -->
+              </select>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="filter-group">
+              <select id="status-filter" class="filter-input main-filter">
+                <option value="">Status</option>
+                <!-- Dynamically populate options based on statuses -->
+              </select>
+            </div>
+          </div>
+
+          <div class="report-actions">
+            <p id="last-export-info"></p>
+
+            <button class="cta-btn-small export-btn" id="export">
+              <img
+                src="assets/images/export-icon.png"
+                alt="Export Icon"
+                class="btn-icon"
+              />Export
+            </button>
+          </div>
+        </section>
+
+        <!-- Metrics and Charts -->
+        <section class="metrics">
+          <!-- Card 1: Total Budget and Spending -->
+          <div class="analytics-box">
+            <!-- Total Budget and Spending Section -->
+            <div class="analytics-big-wrapper">
+              <p class="analytics-title">Total Budget (USD)</p>
+
+                <p class="analytics-value big-number">
+                  <span id="total-budget"></span>
+                </p>
+
+            </div>
+            <div class="analytics-big-wrapper">
+              <p class="analytics-title">Total Spending (USD)</p>
+
+                <p class="analytics-value big-number">
+                  <span id="total-spending"></span>
+                  <span class="cents"></span>
+                </p>
+
+            </div>
+
+            <!-- Chart and Index Section (Remains the same) -->
+            <div class="spending-chart">
+              <div class="chart" aria-label="Spending Distribution Chart">
+                <canvas
+                  id="spendingChart"
+                  aria-describedby="spendingIndex"
+                ></canvas>
+              </div>
+              <ul
+                id="spendingIndex"
+                class="chart-legend"
+                aria-label="Spending Categories"
+              ></ul>
+            </div>
+          </div>
+
+          <!-- Card 2: Best Performing Experiments and Iteration Potential -->
+          <div class="analytics-box two-col">
+            <div class="analytics-big-wrapper half-width">
+              <p class="analytics-title">Top Performing Campaigns</p>
+              <ul id="top-experiments"></ul>
+            </div>
+            <div class="analytics-big-wrapper half-width">
+              <p class="analytics-title">Iteration Potential</p>
+
+                <p
+                  class="analytics-value big-number"
+                  id="iteration-potential"
+                ></p>
+            </div>
+          </div>
+        </section>
+        <!-- Campaigns Table -->
+        <section class="experiments-table">
+          <div class="table-header">
+            <h2>
+              Campaigns
+              <span class="experiment-count" id="experiment-count"></span>
+            </h2>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th class="align-left">Name</th>
+                <th>Category</th>
+                <th id="sort-date" class="sort-btn">
+                  Date Range<span class="arrow">▲▼</span>
+                </th>
+                <th>KPI</th>
+                <th>Projected Outcome</th>
+                <th>Actual Outcome</th>
+                <th id="sort-budget" class="sort-btn">
+                  Budget <span class="arrow">▲▼</span>
+                </th>
+                <th id="sort-actual-spend" class="sort-btn">
+                  Actual Spend <span class="arrow">▲▼</span>
+                </th>
+                <th id="sort-potential" class="sort-btn">
+                  Potential <span class="arrow">▲▼</span>
+                </th>
+                <th id="sort-status" class="sort-btn">
+                  Status <span class="arrow">▲▼</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="experiments-table-body">
+              <!-- Experiment rows will be dynamically populated here -->
+            </tbody>
+          </table>
+        </section>
+      </main>
+
+      <!-- Add Experiment Modal -->
+      <div id="addExperimentModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Add New Campaign</h2>
+            <span class="close" id="close-modal">&times;</span>
+          </div>
+          <div class="horizontal-line-full"></div>
+          <form id="addExperimentForm">
+            <!-- Experiment Name -->
+            <div class="form-group full-width">
+              <label for="experiment-name">Campaign Name:</label>
+              <input
+                type="text"
+                id="experiment-name"
+                name="experimentName"
+                placeholder="Website Copy - A/B #1092"
+                required
+              />
+            </div>
+
+            <!-- Hypothesis -->
+            <div class="form-group full-width">
+              <label for="hypothesis">Hypothesis - Description:</label>
+              <textarea
+                id="hypothesis"
+                name="hypothesis"
+                placeholder="What's going on?"
+              ></textarea>
+            </div>
+
+            <!-- Category and KPI -->
+            <div class="row-group full-width">
+              <!-- Category -->
+              <div class="form-group half-width no-margin">
+                <label for="category">Category:</label>
+                <input
+                  type="text"
+                  id="category"
+                  name="category"
+                  placeholder="Ads, SEO, Viral Loops, etc."
+                  required
+                />
+              </div>
+              <!-- KPI -->
+              <div class="form-group half-width no-margin">
+                <label for="kpi">KPI:</label>
+                <input
+                  type="text"
+                  id="kpi"
+                  name="kpi"
+                  placeholder="Conversion, CTR, CPA, etc."
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Projected and Actual Outcomes Row -->
+            <div class="row-group full-width">
+              <!-- Projected Outcome Type and unit -->
+              <div class="form-group half-width row-group no-margin">
+                <div class="form-group half-width no-margin">
+                  <label for="projected-outcome-type"
+                    >Projected Outcome Type:</label
+                  >
+                  <select
+                    id="projected-outcome-type"
+                    name="projectedOutcomeType"
+                    required
+                  >
+                    <option value="increase">Increase</option>
+                    <option value="decrease">Decrease</option>
+                  </select>
+                </div>
+
+                <div class="form-group half-width no-margin">
+                  <label for="projected-outcome-unit"
+                    >Projected Outcome Unit:</label
+                  >
+                  <select
+                    id="projected-outcome-unit"
+                    name="projectedOutcomeUnit"
+                    required
+                  >
+                    <option value="%">%</option>
+                    <option value="number">Number</option>
+                  </select>
+                </div>
+              </div>
+              <!-- Projected Outcome value and actual outcome -->
+              <div class="form-group half-width row-group no-margin">
+                <div class="form-group half-width no-margin">
+                  <label for="projected-outcome-value"
+                    >Projected Outcome Value:</label
+                  >
+                  <input
+                    type="number"
+                    id="projected-outcome-value"
+                    name="projectedOutcomeValue"
+                    placeholder="55"
+                    required
+                  />
+                </div>
+                <div class="form-group half-width no-margin">
+                  <label for="actual-outcome">Actual Outcome:</label>
+                  <input
+                    type="number"
+                    id="actual-outcome"
+                    name="actualOutcome"
+                    placeholder="Optional"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Dates and Budgets Row -->
+            <div class="row-group full-width">
+              <!-- Dates -->
+              <div class="form-group half-width row-group no-margin">
+                <div class="form-group half-width no-margin">
+                  <label for="start-date">Start Date:</label>
+                  <input
+                    type="date"
+                    id="start-date"
+                    name="startDate"
+                    required
+                  />
+                </div>
+                <div class="form-group half-width no-margin">
+                  <label for="end-date">End Date:</label>
+                  <input type="date" id="end-date" name="endDate" required />
+                </div>
+              </div>
+
+              <!-- Budget and Actual Spend -->
+              <div class="form-group row-group half-width no-margin">
+                <div class="form-group half-width no-margin">
+                  <label for="budget">Budget (USD):</label>
+                  <input
+                    type="text"
+                    id="budget"
+                    name="budget"
+                    placeholder="Amount in USD"
+                    required
+                  />
+                </div>
+                <div class="form-group half-width no-margin">
+                  <label for="actual-spend">Actual Spend (USD):</label>
+                  <input
+                    type="text"
+                    id="actual-spend"
+                    name="actualSpend"
+                    placeholder="Optional"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- URL -->
+            <div class="form-group full-width">
+              <label for="url">URL:</label>
+              <input type="url" id="url" name="url" placeholder="Optional" />
+            </div>
+
+            <!-- Buttons -->
+            <div class="form-group full-width buttons row-group">
+              <button type="button" class="cancel-btn">Cancel</button>
+              <button type="submit" class="cta-btn-big">Save Experiment</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- View Experiment Modal -->
+      <div id="viewExperimentModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>View Campaign</h2>
+            <span class="close" id="close-view-modal">&times;</span>
+          </div>
+          <div class="horizontal-line-full"></div>
+
+          <!-- Experiment Name -->
+          <div class="form-group full-width">
+            <label for="view-experiment-name">Campaign Name:</label>
+            <p id="view-experiment-name" class="modal-view-text"></p>
+          </div>
+
+          <!-- Hypothesis -->
+          <div class="form-group full-width">
+            <label for="view-hypothesis">Hypothesis - Description:</label>
+            <p id="view-hypothesis" class="modal-view-text"></p>
+          </div>
+
+          <!-- Category and KPI -->
+          <div class="row-group full-width">
+            <!-- Category -->
+            <div class="form-group half-width no-margin">
+              <label for="view-category">Category:</label>
+              <p id="view-category" class="modal-view-text"></p>
+            </div>
+            <!-- KPI -->
+            <div class="form-group half-width no-margin">
+              <label for="view-kpi">KPI:</label>
+              <p id="view-kpi" class="modal-view-text"></p>
+            </div>
+          </div>
+
+          <!-- Projected and Actual Outcomes Row -->
+          <div class="row-group full-width">
+            <!-- Projected Outcome -->
+            <div class="form-group half-width no-margin">
+              <label for="view-projected-outcome">Projected Outcome:</label>
+              <p id="view-projected-outcome" class="modal-view-text"></p>
+            </div>
+            <!-- Actual Outcome -->
+            <div class="form-group half-width no-margin">
+              <label for="view-actual-outcome">Actual Outcome:</label>
+              <p id="view-actual-outcome" class="modal-view-text"></p>
+            </div>
+          </div>
+
+          <!-- Dates and Budgets Row -->
+          <div class="row-group full-width">
+            <!-- Dates -->
+            <div class="form-group half-width no-margin">
+              <label for="view-date-range">Date Range:</label>
+              <p id="view-date-range" class="modal-view-text"></p>
+            </div>
+            <!-- Budget and Actual Spend -->
+            <div class="form-group half-width no-margin">
+              <label for="view-budget">Budget (USD):</label>
+              <p id="view-budget" class="modal-view-text"></p>
+            </div>
+            <div class="form-group half-width no-margin">
+              <label for="view-actual-spend">Actual Spend (USD):</label>
+              <p id="view-actual-spend" class="modal-view-text"></p>
+            </div>
+          </div>
+
+          <!-- URL -->
+          <div class="form-group full-width">
+            <label for="view-url">URL:</label>
+            <p id="view-url" class="modal-view-text"></p>
+          </div>
+
+          <!-- Buttons -->
+          <div class="form-group full-width buttons row-group">
+            <button type="button" id="close-view" class="cancel-btn">
+              Cancel
+            </button>
+            <button
+              type="button"
+              id="delete-experiment"
+              class="cta-btn-big delete-btn"
+            >
+              Delete
+            </button>
+            <button type="button" id="edit-experiment" class="cta-btn-big">
+              Edit
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Experiment Modal -->
+      <div id="editExperimentModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Edit Campaign</h2>
+            <span class="close" id="close-edit-modal">&times;</span>
+          </div>
+          <div class="horizontal-line-full"></div>
+          <form id="editExperimentForm">
+            <!-- Experiment Name -->
+            <div class="form-group full-width">
+              <label for="edit-experiment-name">Campaign Name:</label>
+              <input
+                type="text"
+                id="edit-experiment-name"
+                name="experimentName"
+                required
+              />
+            </div>
+
+            <!-- Hypothesis -->
+            <div class="form-group full-width">
+              <label for="edit-hypothesis">Hypothesis - Description:</label>
+              <textarea id="edit-hypothesis" name="hypothesis"></textarea>
+            </div>
+
+            <!-- Category and KPI -->
+            <div class="row-group full-width">
+              <!-- Category -->
+              <div class="form-group half-width no-margin">
+                <label for="edit-category">Category:</label>
+                <input
+                  type="text"
+                  id="edit-category"
+                  name="category"
+                  required
+                />
+              </div>
+              <!-- KPI -->
+              <div class="form-group half-width no-margin">
+                <label for="edit-kpi">KPI:</label>
+                <input type="text" id="edit-kpi" name="kpi" required />
+              </div>
+            </div>
+
+            <!-- Projected and Actual Outcomes Row -->
+            <div class="row-group full-width">
+              <!-- Projected Outcome Type and unit -->
+              <div class="form-group half-width row-group no-margin">
+                <div class="form-group half-width no-margin">
+                  <label for="edit-projected-outcome-type"
+                    >Projected Outcome Type:</label
+                  >
+                  <select
+                    id="edit-projected-outcome-type"
+                    name="projectedOutcomeType"
+                    required
+                  >
+                    <option value="increase">Increase</option>
+                    <option value="decrease">Decrease</option>
+                  </select>
+                </div>
+
+                <div class="form-group half-width no-margin">
+                  <label for="edit-projected-outcome-unit"
+                    >Projected Outcome Unit:</label
+                  >
+                  <select
+                    id="edit-projected-outcome-unit"
+                    name="projectedOutcomeUnit"
+                    required
+                  >
+                    <option value="%">%</option>
+                    <option value="number">Number</option>
+                  </select>
+                </div>
+              </div>
+              <!-- Projected Outcome value and actual outcome -->
+              <div class="form-group half-width row-group no-margin">
+                <div class="form-group half-width no-margin">
+                  <label for="edit-projected-outcome-value"
+                    >Projected Outcome Value:</label
+                  >
+                  <input
+                    type="number"
+                    id="edit-projected-outcome-value"
+                    name="projectedOutcomeValue"
+                    required
+                  />
+                </div>
+                <div class="form-group half-width no-margin">
+                  <label for="edit-actual-outcome">Actual Outcome:</label>
+                  <input
+                    type="number"
+                    id="edit-actual-outcome"
+                    name="actualOutcome"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Dates and Budgets Row -->
+            <div class="row-group full-width">
+              <!-- Dates -->
+              <div class="form-group half-width row-group no-margin">
+                <div class="form-group half-width no-margin">
+                  <label for="edit-start-date">Start Date:</label>
+                  <input
+                    type="date"
+                    id="edit-start-date"
+                    name="startDate"
+                    required
+                  />
+                </div>
+                <div class="form-group half-width no-margin">
+                  <label for="edit-end-date">End Date:</label>
+                  <input
+                    type="date"
+                    id="edit-end-date"
+                    name="endDate"
+                    required
+                  />
+                </div>
+              </div>
+
+              <!-- Budget and Actual Spend -->
+              <div class="form-group row-group half-width no-margin">
+                <div class="form-group half-width no-margin">
+                  <label for="edit-budget">Budget (USD):</label>
+                  <input type="text" id="edit-budget" name="budget" required />
+                </div>
+                <div class="form-group half-width no-margin">
+                  <label for="edit-actual-spend">Actual Spend (USD):</label>
+                  <input
+                    type="text"
+                    id="edit-actual-spend"
+                    name="actualSpend"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- URL -->
+            <div class="form-group full-width">
+              <label for="edit-url">URL:</label>
+              <input type="url" id="edit-url" name="url" />
+            </div>
+
+            <!-- Buttons -->
+            <div class="form-group full-width buttons row-group">
+              <button type="button" class="cancel-btn" id="close-edit">
+                Cancel
+              </button>
+              <button type="submit" class="cta-btn-big">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Export Report Modal -->
+      <div id="exportReportModal" class="modal">
+        <div class="modal-content modal-content-small">
+          <span class="close" id="close-export-modal">&times;</span>
+          <h2>Export Report</h2>
+
+          <div class="horizontal-line-full"></div>
+
+          <!-- Export File Type Dropdown -->
+          <div class="form-group full-width">
+            <label for="export-file-type">Export as:</label>
+            <select id="export-file-type" class="filter-select">
+              <option value="pdf">PDF</option>
+              <option value="excel">Excel</option>
+            </select>
+          </div>
+
+          <!-- Filters Section -->
+          <div class="form-group full-width">
+            <!-- Date Filter -->
+            <div class="form-group full-width">
+              <label>Date Range</label>
+              <input
+                type="text"
+                id="export-date-range"
+                placeholder="From - To"
+              />
+            </div>
+
+            <div class="row-group full-width">
+              <!-- Category Filter -->
+              <div class="form-group half-width">
+                <label>Category</label>
+                <select id="export-category-filter" class="filter-select">
+                  <option value="">All Categories</option>
+                  <!-- Populate with categories dynamically -->
+                </select>
+              </div>
+
+              <!-- KPI Filter -->
+              <div class="form-group half-width">
+                <label>KPI</label>
+                <select id="export-kpi-filter" class="filter-select">
+                  <option value="">All Tags</option>
+                  <!-- Populate with tags dynamically -->
+                </select>
+              </div>
+
+              <!-- STATUS Filter -->
+              <div class="form-group half-width">
+                <label>Status</label>
+                <select id="export-status-filter" class="filter-select">
+                  <option value="">All Statuses</option>
+                  <!-- Populate with tags dynamically -->
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Buttons -->
+          <div class="form-group full-width buttons row-group">
+            <button type="button" class="cancel-btn" id="cancel-export">
+              Cancel
+            </button>
+            <button type="button" class="cta-btn-big" id="confirm-export">
+              Export Report
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="notification-container" class="notification-container"></div>
+    </div>
+    <script src="assets/js/dashboard.js"></script>
+  </body>
+</html>

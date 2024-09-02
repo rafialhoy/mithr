@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <title>Welcome to Mithr</title>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link
+      rel="icon"
+      href="/public/assets/images/mithr-logo-favicon.png"
+      type="image/png"
+    />
+  </head>
+  <body>
+    <main class="onboarding-content">
+      <div class="onboarding-wrapper">
+        <img
+          src="/public/assets/images/mithr-logo-icon.png"
+          alt="Mithr Logo"
+          class="logo"
+        />
+        <h1>Welcome to Mithr!</h1>
+        <div class="onboarding-points">
+          <div class="onboarding-point">
+            <span class="point-number">1</span>
+            <p>Only a limited number of users can join during this MVP phase.</p>
+          </div>
+          <div class="onboarding-point">
+            <span class="point-number">2</span>
+            <p>Early users will help shape key features and improvements.</p>
+          </div>
+          <div class="onboarding-point">
+            <span class="point-number">3</span>
+            <p>Get a first look at upcoming features before they're released.</p>
+          </div>
+        </div>
+        <form id="onboarding-form" autocomplete="off">
+          <input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="Who enters the realm of Gondor?"
+            required
+          />
+        </form>
+      </div>
+      <a href="#" id="continue-link" class="continue-link disabled-link"
+        >Continue to Dashboard</a
+      >
+    </main>
+    <script src="assets/js/onboarding.js"></script>
+  </body>
+</html>
