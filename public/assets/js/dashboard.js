@@ -317,7 +317,7 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
     // Save the PDF
-    doc.save("Experiment_Data_Export.pdf");
+    doc.save("Mithr-Data-Export.pdf");
   }
 
   function exportToExcel(filteredExperiments) {
@@ -695,69 +695,57 @@ function getLastExportFormattedTime() {
     });
   }
 
-  // Add Experiment Form Submission ---- JUST ADDED
-  document
-    .getElementById("addExperimentForm")
-    .addEventListener("submit", function (e) {
-      e.preventDefault();
+  // Add Experiment Form Submission
+document.getElementById("addExperimentForm").addEventListener("submit", function (e) {
+  e.preventDefault();
 
-      const experiments = JSON.parse(localStorage.getItem("experiments")) || [];
+  const experiments = JSON.parse(localStorage.getItem("experiments")) || [];
 
-      // Collect form data
-      const experimentName = document.getElementById("experiment-name").value;
-      const hypothesis = document.getElementById("hypothesis").value;
-      const category = document.getElementById("category").value;
-      const kpi = document.getElementById("kpi").value;
-      const projectedOutcomeType = document.getElementById(
-        "projected-outcome-type"
-      ).value;
-      const projectedOutcomeUnit = document.getElementById(
-        "projected-outcome-unit"
-      ).value;
-      const projectedOutcomeValue = document.getElementById(
-        "projected-outcome-value"
-      ).value;
-      const actualOutcome =
-        document.getElementById("actual-outcome").value || "N/A"; // Default to "N/A" if not filled
-      const startDate = document.getElementById("start-date").value;
-      const endDate = document.getElementById("end-date").value;
-      const budget =
-        parseFloat(document.getElementById("budget").value.replace(/,/g, "")) ||
-        0;
-      const actualSpend =
-        parseFloat(
-          document.getElementById("actual-spend").value.replace(/,/g, "")
-        ) || 0;
-      const url = document.getElementById("url").value;
+  // Collect form data
+  const experimentName = document.getElementById("experiment-name").value;
+  const hypothesis = document.getElementById("hypothesis").value;
+  const category = document.getElementById("category").value;
+  const kpi = document.getElementById("kpi").value;
+  const projectedOutcomeType = document.getElementById("projected-outcome-type").value;
+  const projectedOutcomeUnit = document.getElementById("projected-outcome-unit").value;
+  const projectedOutcomeValue = document.getElementById("projected-outcome-value").value;
+  const actualOutcome = document.getElementById("actual-outcome").value || "N/A"; // Default to "N/A" if not filled
+  const startDate = document.getElementById("start-date").value;
+  const endDate = document.getElementById("end-date").value;
 
-      // Create a new experiment object
-      // Create a new experiment object
-      const newExperiment = {
-        id: Date.now(),
-        experimentName,
-        hypothesis,
-        category,
-        kpi,
-        projectedOutcomeType,
-        projectedOutcomeUnit,
-        projectedOutcomeValue,
-        actualOutcome,
-        startDate,
-        endDate,
-        budget,
-        actualSpend,
-        url,
-        status: "In Progress", // Default status
-      };
+  // Format and store budget and actual spend values without formatting
+  const budget = parseFloat(document.getElementById("budget").value.replace(/,/g, "")) || 0;
+  const actualSpend = parseFloat(document.getElementById("actual-spend").value.replace(/,/g, "")) || 0;
 
-      // Save the experiment in localStorage
-      experiments.push(newExperiment);
-      localStorage.setItem("experiments", JSON.stringify(experiments));
+  const url = document.getElementById("url").value;
 
-      // Close the modal and refresh the experiments table
-      document.getElementById("addExperimentModal").style.display = "none";
-      loadExperiments(); // Refresh the experiments list
-    });
+  // Create a new experiment object
+  const newExperiment = {
+      id: Date.now(),
+      experimentName,
+      hypothesis,
+      category,
+      kpi,
+      projectedOutcomeType,
+      projectedOutcomeUnit,
+      projectedOutcomeValue,
+      actualOutcome,
+      startDate,
+      endDate,
+      budget,
+      actualSpend,
+      url,
+      status: "In Progress", // Default status
+  };
+
+  // Save the experiment in localStorage
+  experiments.push(newExperiment);
+  localStorage.setItem("experiments", JSON.stringify(experiments));
+
+  // Close the modal and refresh the experiments table
+  document.getElementById("addExperimentModal").style.display = "none";
+  loadExperiments(); // Refresh the experiments list
+});
 
   function addExperimentToTable(experiment) {
     const tableBody = document.getElementById("experiments-table-body");
@@ -879,10 +867,10 @@ function getLastExportFormattedTime() {
     if (isNaN(value) || value === "") return ""; // Handle invalid or empty input
     let number = parseFloat(value).toFixed(2); // Ensure two decimal places
     let [integerPart, decimalPart] = number.split("."); // Split into integer and decimal parts
-  
-    // Apply the .cents class to the decimal part
-    return `$${integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}<span class="cents">.${decimalPart}</span>`;
-  }
+
+    // Format the number with commas, without inserting HTML tags
+    return `${integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}.${decimalPart}`;
+}
 
   function formatNumberForTable(value) {
     if (isNaN(value) || value === "") return ""; // Handle invalid or empty input
@@ -890,20 +878,19 @@ function getLastExportFormattedTime() {
     return number.replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Add commas
   }
 
-  // Event listener to format input (for both budget and actual spend) on blur
   document.querySelectorAll("#budget, #actual-spend").forEach(function (input) {
     input.addEventListener("blur", function (e) {
-      let rawValue = e.target.value.replace(/,/g, ""); // Remove commas for processing
-      if (!isNaN(rawValue) && rawValue !== "") {
-        e.target.value = formatNumberWithCommasAndDecimals(rawValue); // Format and set value
-      }
+        let rawValue = e.target.value.replace(/,/g, ""); // Remove commas for processing
+        if (!isNaN(rawValue) && rawValue !== "") {
+            e.target.value = formatNumberWithCommasAndDecimals(rawValue); // Format and set value
+        }
     });
 
     // Ensure that on focus, the input value is without formatting (commas)
     input.addEventListener("focus", function (e) {
-      e.target.value = e.target.value.replace(/,/g, ""); // Remove commas when focused
+        e.target.value = e.target.value.replace(/,/g, ""); // Remove commas when focused
     });
-  });
+});
 
   // Event listener to format input (for both budget and actual spend) on blur in the Edit Experiment form
   document
