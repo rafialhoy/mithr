@@ -811,49 +811,90 @@ document.getElementById("addExperimentForm").addEventListener("submit", function
     });
   }
 
+  function calculatePotentialScore(experiment) {
+    // Extracting necessary data
+    const projectedValue = parseFloat(experiment.projectedOutcomeValue) || 0;
+    const actualValue = parseFloat(experiment.actualOutcome) || 0;
+    const projectedUnit = experiment.projectedOutcomeUnit || "number";
+    const budget = parseFloat(experiment.budget) || 0;
+    const actualSpend = parseFloat(experiment.actualSpend) || 0;
+    const startDate = new Date(experiment.startDate);
+    const endDate = new Date(experiment.endDate);
+    const daysTaken = (endDate - startDate) / (1000 * 3600 * 24) || 1;
+  
+    // 1. Outcome Evaluation Score
+    let outcomeScore = 0;
+    const outcomeDifference = Math.abs(actualValue - projectedValue);
+  
+    if (projectedUnit === "%" || projectedUnit === "percentage") {
+      // For percentage values
+      outcomeScore =
+        outcomeDifference <= 5
+          ? 3
+          : outcomeDifference <= 10
+          ? 2
+          : 1;
+    } else {
+      // For plain number values
+      const outcomeRatio = actualValue / projectedValue;
+      outcomeScore =
+        outcomeRatio >= 0.9
+          ? 3
+          : outcomeRatio >= 0.75
+          ? 2
+          : 1;
+    }
+  
+    // 2. Budget Analysis Score
+    let budgetScore = 0;
+    const budgetRatio = actualSpend / budget;
+  
+    if (actualSpend <= budget) {
+      budgetScore =
+        actualSpend === 0
+          ? 1
+          : budgetRatio >= 0.75
+          ? 3
+          : 2;
+    } else {
+      budgetScore = budgetRatio > 1.25 ? 1 : 2;
+    }
+  
+    // 3. Time Efficiency Score
+    let timeScore = 0;
+  
+    if (daysTaken <= 7) {
+      timeScore = 3;
+    } else if (daysTaken <= 14) {
+      timeScore = 2;
+    } else {
+      timeScore = 1;
+    }
+  
+    // Assigning weights to each criteria (change these weights as per importance)
+    const outcomeWeight = 0.5;
+    const budgetWeight = 0.3;
+    const timeWeight = 0.2;
+  
+    // Calculating the final weighted score
+    const finalScore =
+      outcomeScore * outcomeWeight +
+      budgetScore * budgetWeight +
+      timeScore * timeWeight;
+  
+    // Return the final potential as "High", "Medium", or "Low" based on the score
+    if (finalScore >= 2.5) {
+      return "High";
+    } else if (finalScore >= 1.75) {
+      return "Medium";
+    } else {
+      return "Low";
+    }
+  }
+
   // Determine potential
   function determinePotential(experiment) {
-    // Check if the projectedOutcome and actualOutcome are defined and valid
-    const projectedValue = experiment.projectedOutcomeValue
-      ? parseFloat(experiment.projectedOutcomeValue)
-      : NaN;
-    const actualValue =
-      experiment.actualOutcome && !isNaN(experiment.actualOutcome)
-        ? parseFloat(experiment.actualOutcome)
-        : NaN;
-
-    // If actualOutcome is not provided or invalid, return "N/A"
-    if (isNaN(actualValue)) {
-      return "N/A";
-    }
-
-    // Determine logic based on whether it's a percentage or a number
-    if (experiment.projectedOutcomeUnit === "%") {
-      // For percentages, use the existing threshold logic
-      const difference = Math.abs(actualValue - projectedValue);
-
-      if (difference <= 5) {
-        return "High";
-      } else if (difference <= 9) {
-        return "Medium";
-      } else {
-        return "Low";
-      }
-    } else if (experiment.projectedOutcomeUnit === "number") {
-      // For numbers, apply different thresholds
-      const difference = Math.abs(actualValue - projectedValue);
-
-      if (difference <= 10) {
-        return "High";
-      } else if (difference <= 20) {
-        return "Medium";
-      } else {
-        return "Low";
-      }
-    } else {
-      // Default case if the unit is neither percentage nor number
-      return "N/A";
-    }
+    return calculatePotentialScore(experiment);
   }
 
   function determineStatus(experiment) {
