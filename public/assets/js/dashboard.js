@@ -421,9 +421,9 @@ function getLastExportFormattedTime() {
         yesterday.setDate(now.getDate() - 1);
 
         if (now.toDateString() === lastExportDate.toDateString()) {
-            return `Today at ${lastExportDate.toLocaleTimeString("en-US", options)}`;
+            return `Today, ${lastExportDate.toLocaleTimeString("en-US", options)}`;
         } else if (yesterday.toDateString() === lastExportDate.toDateString()) {
-            return `Yesterday at ${lastExportDate.toLocaleTimeString("en-US", options)}`;
+            return `Yesterday, ${lastExportDate.toLocaleTimeString("en-US", options)}`;
         } else {
             return lastExportDate.toLocaleString("en-US", options);
         }
