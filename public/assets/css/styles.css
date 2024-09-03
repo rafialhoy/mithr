@@ -1277,9 +1277,10 @@ select option {
     left: 0;
     justify-content: center;
     align-items: center;
-    font-size: 1rem;
+    font-size: 1.5rem;
     font-family: var(--font-family);
     color: white;
+    font-weight: 500;
     opacity: 0.8;
     user-select: none;
     text-shadow: 1px 1px rgba(0,0,0,0.1);
